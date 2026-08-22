@@ -1,0 +1,19 @@
+{
+  "brands": [
+    {
+      "name": "Apple",
+      "rank": 1,
+      "models": [
+        { "name": "iPhone 16 Pro", "release_year": 2024 },
+        { "name": "iPhone 16", "release_year": 2024 }
+      ]
+    },
+    {
+      "name": "Samsung",
+      "rank": 2,
+      "models": [
+        { "name": "Galaxy S24", "release_year": 2024, "aliases": ["SM-S921"] }
+      ]
+    }
+  ]
+}

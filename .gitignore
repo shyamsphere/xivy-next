@@ -1,0 +1,26 @@
+# dependencies
+node_modules/
+
+# builds
+.next/
+.medusa/
+dist/
+build/
+.turbo/
+
+# env
+.env
+.env.local
+.env.*.local
+
+# misc
+.DS_Store
+*.log
+coverage/
+
+# planning artifacts (kept locally, not part of the repo)
+artifacts/
+
+# tests
+test-results/
+playwright-report/
