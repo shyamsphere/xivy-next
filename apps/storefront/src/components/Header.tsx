@@ -38,6 +38,12 @@ export async function Header() {
           <div className="hidden md:block">
             <DevicePicker groups={groups} />
           </div>
+          <Link
+            href="/account"
+            className="hidden h-10 items-center rounded-full px-3 text-sm text-ink-muted transition-colors hover:bg-surface-sunken hover:text-ink sm:inline-flex"
+          >
+            Account
+          </Link>
           <CartDrawer />
         </div>
       </div>

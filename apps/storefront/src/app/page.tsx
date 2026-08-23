@@ -86,8 +86,22 @@ export default async function HomePage() {
   )
 }
 
+/**
+ * Products are fetched with a fallback because this page is prerendered at
+ * build time, and CI builds run without a backend. In production the build
+ * can reach the backend, so real data is baked in.
+ */
+async function safeProducts(limit: number) {
+  try {
+    const { products } = await listProducts({ limit })
+    return products
+  } catch {
+    return []
+  }
+}
+
 async function HeroImage() {
-  const { products } = await listProducts({ limit: 1 })
+  const products = await safeProducts(1)
   const hero = products[0]
   if (!hero?.thumbnail) {
     return <div className="aspect-4/5 rounded-card bg-surface-sunken lg:aspect-square" />
@@ -107,7 +121,9 @@ async function HeroImage() {
 }
 
 async function FeaturedGrid() {
-  const { products } = await listProducts({ limit: 4 })
+  const products = await safeProducts(4)
+
+  if (products.length === 0) return null
 
   return (
     <div className="grid grid-cols-2 gap-4 sm:gap-6 lg:grid-cols-4">

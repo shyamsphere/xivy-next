@@ -1,15 +1,13 @@
 "use client"
 
 import type { ProductVariant } from "@/lib/types"
-import { useState } from "react"
+import { useState, useTransition } from "react"
+import { addToCart } from "@/app/actions/cart"
 import { formatINR } from "@/lib/format"
+import { notifyCartUpdated } from "@/lib/use-cart"
 import { Button } from "./ui/Button"
 
-/**
- * Device/option selector for the PDP. Add-to-cart is inert until the Medusa
- * cart is wired up in Phase 4 (P1-6) — the selection state it holds is what
- * that work will submit.
- */
+/** Device/option selector plus add-to-cart for the PDP. */
 export function VariantPicker({
   variants,
   optionTitle = "Device",
@@ -18,10 +16,22 @@ export function VariantPicker({
   optionTitle?: string
 }) {
   const [selectedId, setSelectedId] = useState(variants[0]?.id ?? null)
+  const [added, setAdded] = useState(false)
+  const [pending, startTransition] = useTransition()
   const selected = variants.find((variant) => variant.id === selectedId)
   const price = selected?.calculated_price?.calculated_amount
   const stock = selected?.inventory_quantity ?? 0
   const available = stock > 0
+
+  const add = () => {
+    if (!selectedId) return
+    startTransition(async () => {
+      await addToCart(selectedId, 1)
+      notifyCartUpdated()
+      setAdded(true)
+      setTimeout(() => setAdded(false), 2500)
+    })
+  }
 
   return (
     <div className="mt-8">
@@ -76,11 +86,14 @@ export function VariantPicker({
       <Button
         size="lg"
         className="mt-6 w-full sm:w-auto"
-        disabled={!available}
-        title="Cart is wired up in the next phase"
+        disabled={!available || pending}
+        onClick={add}
       >
-        Add to cart
+        {pending ? "Adding…" : added ? "Added to cart ✓" : "Add to cart"}
       </Button>
+      <span aria-live="polite" className="sr-only">
+        {added ? "Added to cart" : ""}
+      </span>
     </div>
   )
 }
