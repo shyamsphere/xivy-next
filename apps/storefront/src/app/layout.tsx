@@ -1,6 +1,8 @@
 import type { Metadata } from "next"
 import { Inter } from "next/font/google"
-import Link from "next/link"
+import { Header } from "@/components/Header"
+import { Footer } from "@/components/Footer"
+import { BASE_URL } from "@/lib/seo"
 import "./globals.css"
 
 const inter = Inter({
@@ -10,42 +12,41 @@ const inter = Inter({
 })
 
 export const metadata: Metadata = {
-  metadataBase: new URL(
-    process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"
-  ),
+  metadataBase: new URL(BASE_URL),
   title: {
-    default: "XIVY — Premium Mobile Cases & Accessories",
+    default: "XIVY — Premium mobile cases, made honest",
     template: "%s | XIVY",
   },
   description:
-    "Premium mobile cases and accessories. Honest prices, delivered across India.",
+    "Premium mobile cases and accessories in honest materials at honest prices. Free delivery over ₹999 across India.",
+  openGraph: {
+    type: "website",
+    siteName: "XIVY",
+    locale: "en_IN",
+  },
+  twitter: { card: "summary_large_image" },
 }
 
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en">
-      <body className={`${inter.variable} font-sans antialiased bg-white text-neutral-900`}>
-        <header className="sticky top-0 z-40 border-b border-neutral-200 bg-white/80 backdrop-blur">
-          <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6">
-            <Link href="/" className="text-xl font-bold tracking-tight">
-              XIVY
-            </Link>
-            <nav className="flex items-center gap-6 text-sm text-neutral-600">
-              <Link href="/products" className="hover:text-neutral-900">
-                Shop
-              </Link>
-            </nav>
-          </div>
-        </header>
-        <main className="min-h-[70vh]">{children}</main>
-        <footer className="border-t border-neutral-200 py-10">
-          <div className="mx-auto max-w-7xl px-4 text-sm text-neutral-500 sm:px-6">
-            <p>© {new Date().getFullYear()} ShyamSphere International · Mumbai, India</p>
-            <p className="mt-1">support@xivy.in</p>
-          </div>
-        </footer>
+    <html lang="en-IN">
+      <body className={`${inter.variable} font-sans`}>
+        <a
+          href="#main"
+          className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:rounded-full focus:bg-ink focus:px-4 focus:py-2 focus:text-sm focus:text-white"
+        >
+          Skip to content
+        </a>
+        {/* Awaited rather than streamed: if the shell streams first, a
+            notFound() in the page can no longer set a 404 status. The
+            device-catalog data behind it is cached for an hour. */}
+        <Header />
+        <main id="main" className="min-h-[60vh]">
+          {children}
+        </main>
+        <Footer />
       </body>
     </html>
   )

@@ -308,8 +308,26 @@ export default async function seedXivyData({ container }: ExecArgs) {
     })
     publishableApiKey = { id: created.id, token: created.token }
   }
+  // The key must map to exactly ONE sales channel, otherwise the Store API
+  // refuses to calculate inventory availability ("provide a single sales
+  // channel id or configure a single sales channel in the publishable key").
+  // Medusa ships a "Default Sales Channel" and a default key, so strip any
+  // channel that isn't ours.
+  const { data: keyWithChannels } = await query.graph({
+    entity: "api_key",
+    fields: ["id", "sales_channels.id"],
+    filters: { id: publishableApiKey.id },
+  })
+  const linkedChannelIds: string[] = (
+    keyWithChannels?.[0]?.sales_channels ?? []
+  ).flatMap((channel) => (channel?.id ? [channel.id] : []))
+
   await linkSalesChannelsToApiKeyWorkflow(container).run({
-    input: { id: publishableApiKey.id, add: [salesChannel.id] },
+    input: {
+      id: publishableApiKey.id,
+      add: linkedChannelIds.includes(salesChannel.id) ? [] : [salesChannel.id],
+      remove: linkedChannelIds.filter((id) => id !== salesChannel.id),
+    },
   })
 
   logger.info("Seeding products...")

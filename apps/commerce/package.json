@@ -21,7 +21,8 @@
     "@medusajs/framework": "2.18.0",
     "@medusajs/icons": "2.18.0",
     "@medusajs/medusa": "2.18.0",
-    "@medusajs/ui": "^4.2.0"
+    "@medusajs/ui": "^4.2.0",
+    "zod": "4.2.0"
   },
   "devDependencies": {
     "@medusajs/test-utils": "2.18.0",

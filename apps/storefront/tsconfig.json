@@ -18,9 +18,21 @@
         "name": "next"
       }
     ],
+    // This app is on React 19; apps/commerce is on React 18 for Medusa's
+    // admin bundle. pnpm's flat fallback store
+    // (node_modules/.pnpm/node_modules/@types/react) holds the React 18
+    // copy, and TypeScript finds it when resolving types for packages that
+    // live inside .pnpm — such as `next`. Global JSX namespaces merge, so
+    // React 18's JSX would win and async Server Components would stop
+    // type-checking. Pinning react/react-dom keeps one type identity here.
     "paths": {
-      "@/*": ["./src/*"]
-    }
+      "@/*": ["./src/*"],
+      "react": ["./node_modules/@types/react"],
+      "react/*": ["./node_modules/@types/react/*"],
+      "react-dom": ["./node_modules/@types/react-dom"],
+      "react-dom/*": ["./node_modules/@types/react-dom/*"]
+    },
+    "typeRoots": ["./node_modules/@types"]
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
   "exclude": ["node_modules"]
