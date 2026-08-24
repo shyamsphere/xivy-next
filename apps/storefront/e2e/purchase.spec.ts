@@ -47,7 +47,11 @@ test.describe("purchase path", () => {
     await page.context().clearCookies()
     // Cards only add directly when the phone is known, i.e. a filtered listing
     await page.goto("/products?device=apple-iphone-16-pro")
-    await page.getByRole("button", { name: /add to cart/i }).first().click()
+    // cards name the phone they add for, e.g. "Add iPhone 16 Pro to cart"
+    await page
+      .getByRole("button", { name: /add .* to cart/i })
+      .first()
+      .click()
 
     const drawer = page.getByRole("dialog")
     await expect(drawer).toBeVisible()

@@ -8,7 +8,7 @@ import {
   discountPercent,
   inStock,
 } from "@/lib/medusa"
-import { AddToCartButton } from "./AddToCartButton"
+import { CardAddToCart } from "./CardAddToCart"
 
 /**
  * Product card.
@@ -35,15 +35,6 @@ export function ProductCard({
   const hoverImage = images[1]?.url
   const available = inStock(product)
   const variants = product.variants ?? []
-
-  // A one-variant product has no ambiguity, so it can always add directly.
-  const directVariantId =
-    addVariantId ?? (variants.length === 1 ? variants[0].id : null)
-
-  const variantInStock = directVariantId
-    ? (variants.find((v) => v.id === directVariantId)?.inventory_quantity ??
-        0) > 0
-    : available
 
   return (
     <div className="group relative flex flex-col overflow-hidden rounded-card border border-line bg-surface shadow-card transition-shadow hover:shadow-lift">
@@ -103,19 +94,11 @@ export function ProductCard({
           )}
         </div>
 
-        {directVariantId ? (
-          <AddToCartButton
-            variantId={directVariantId}
-            disabled={!variantInStock}
-          />
-        ) : (
-          <Link
-            href={`/products/${product.handle}`}
-            className="h-9 shrink-0 rounded-full border border-line-strong px-3.5 text-xs leading-9 font-medium text-ink-muted transition-colors hover:border-ink hover:text-ink"
-          >
-            Choose phone
-          </Link>
-        )}
+        <CardAddToCart
+          productHandle={product.handle}
+          variants={variants}
+          serverVariantId={addVariantId}
+        />
       </div>
     </div>
   )

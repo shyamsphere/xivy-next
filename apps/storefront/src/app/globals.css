@@ -51,6 +51,25 @@ body {
   line-height: 1.05;
 }
 
+/* Tailwind v4's preflight leaves buttons at the browser default cursor, so
+   every button on the site rendered without a pointer. Restored once here
+   rather than sprinkling cursor-pointer across every component. */
+button:not(:disabled),
+[role="button"]:not([aria-disabled="true"]),
+summary,
+label[for],
+input[type="radio"]:not(:disabled),
+input[type="checkbox"]:not(:disabled),
+input[type="submit"]:not(:disabled),
+input[type="button"]:not(:disabled) {
+  cursor: pointer;
+}
+
+button:disabled,
+[role="button"][aria-disabled="true"] {
+  cursor: not-allowed;
+}
+
 /* Visible focus for keyboard users only. */
 :focus-visible {
   outline: 2px solid var(--color-accent);

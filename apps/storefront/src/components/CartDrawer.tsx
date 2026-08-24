@@ -86,21 +86,40 @@ export function CartDrawer() {
               <ul className="flex-1 divide-y divide-line overflow-y-auto px-6">
                 {cart.items.map((item) => (
                   <li key={item.id} className="flex gap-4 py-4">
-                    <div className="relative size-20 shrink-0 overflow-hidden rounded-lg bg-surface-sunken">
-                      {item.thumbnail && (
-                        <Image
-                          src={item.thumbnail}
-                          alt=""
-                          fill
-                          sizes="80px"
-                          className="object-cover"
-                        />
-                      )}
-                    </div>
+                    {/* Image and name both link through to the product */}
+                    <Dialog.Close asChild>
+                      <Link
+                        href={item.handle ? `/products/${item.handle}` : "/cart"}
+                        className="relative size-20 shrink-0 overflow-hidden rounded-lg bg-surface-sunken"
+                        tabIndex={-1}
+                        aria-hidden={!!item.handle}
+                      >
+                        {item.thumbnail && (
+                          <Image
+                            src={item.thumbnail}
+                            alt=""
+                            fill
+                            sizes="80px"
+                            className="object-cover"
+                          />
+                        )}
+                      </Link>
+                    </Dialog.Close>
                     <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-medium">
-                        {item.title}
-                      </p>
+                      {item.handle ? (
+                        <Dialog.Close asChild>
+                          <Link
+                            href={`/products/${item.handle}`}
+                            className="block truncate text-sm font-medium underline-offset-4 hover:underline"
+                          >
+                            {item.title}
+                          </Link>
+                        </Dialog.Close>
+                      ) : (
+                        <p className="truncate text-sm font-medium">
+                          {item.title}
+                        </p>
+                      )}
                       {item.subtitle && (
                         <p className="text-xs text-ink-subtle">
                           {item.subtitle}

@@ -25,28 +25,32 @@ export function DevicePicker({
   const [brandHandle, setBrandHandle] = useState<string | null>(
     groups.length === 1 ? groups[0].brand.handle : null
   )
-  const [selectedHandle, setSelectedHandle] = useState<string | null>(null)
+  const [selected, setSelected] = useState<{
+    handle: string
+    label: string | null
+  } | null>(null)
   const [pending, startTransition] = useTransition()
   const router = useRouter()
 
   // Read in the browser, so no server render depends on cookies().
-  useEffect(() => setSelectedHandle(readDeviceCookie()), [])
+  useEffect(() => setSelected(readDeviceCookie()), [])
 
   const selectedLabel = (() => {
-    if (!selectedHandle) return null
+    if (!selected) return null
     for (const { brand, models } of groups) {
-      const match = models.find((model) => model.handle === selectedHandle)
+      const match = models.find((model) => model.handle === selected.handle)
       if (match) return match.display_name ?? `${brand.name} ${match.name}`
     }
-    return null
+    return selected.label
   })()
 
   const activeGroup = groups.find((g) => g.brand.handle === brandHandle)
 
   const choose = (model: DeviceModel) => {
     startTransition(async () => {
-      await setSelectedDevice(model.handle)
-      setSelectedHandle(model.handle)
+      // the model name is stored too, so cards can match it to a variant
+      await setSelectedDevice(model.handle, model.name)
+      setSelected({ handle: model.handle, label: model.name })
       setOpen(false)
       router.push(`/products?device=${model.handle}`)
     })
@@ -55,7 +59,7 @@ export function DevicePicker({
   const clear = () => {
     startTransition(async () => {
       await clearSelectedDevice()
-      setSelectedHandle(null)
+      setSelected(null)
       setOpen(false)
       router.push("/products")
     })
