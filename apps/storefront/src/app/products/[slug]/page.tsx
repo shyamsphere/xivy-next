@@ -3,6 +3,7 @@ import Link from "next/link"
 import { notFound } from "next/navigation"
 import { JsonLd } from "@/components/JsonLd"
 import { ProductGallery } from "@/components/ProductGallery"
+import { RelatedProducts } from "@/components/RelatedProducts"
 import { VariantPicker } from "@/components/VariantPicker"
 import { getProductDevices } from "@/lib/devices"
 import { formatINR } from "@/lib/format"
@@ -160,6 +161,8 @@ export default async function ProductPage({ params }: Props) {
           </dl>
         </div>
       </div>
+
+      <RelatedProducts product={product} devices={devices} />
     </div>
   )
 }

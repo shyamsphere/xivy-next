@@ -79,8 +79,8 @@ export function DevicePicker({
       </Dialog.Trigger>
 
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 z-50 bg-ink/25 backdrop-blur-[2px]" />
-        <Dialog.Content className="fixed top-1/2 left-1/2 z-50 w-[calc(100%-2rem)] max-w-lg -translate-x-1/2 -translate-y-1/2 rounded-card border border-line bg-surface shadow-lift">
+        <Dialog.Overlay className="fixed inset-0 z-50 bg-ink/25 backdrop-blur-[2px] data-[state=closed]:animate-overlay-out data-[state=open]:animate-overlay-in" />
+        <Dialog.Content className="dialog-centered fixed top-1/2 left-1/2 z-50 w-[calc(100%-2rem)] max-w-lg rounded-card border border-line bg-surface shadow-lift data-[state=closed]:animate-dialog-out data-[state=open]:animate-dialog-in">
           <div className="flex items-start justify-between border-b border-line px-6 py-4">
             <div>
               <Dialog.Title className="text-base font-medium">

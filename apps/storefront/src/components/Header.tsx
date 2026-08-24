@@ -40,18 +40,46 @@ export async function Header() {
           </div>
           <Link
             href="/account"
-            className="hidden h-10 items-center rounded-full px-3 text-sm text-ink-muted transition-colors hover:bg-surface-sunken hover:text-ink sm:inline-flex"
+            aria-label="Account"
+            title="Account"
+            className="hidden size-10 items-center justify-center rounded-full text-ink-muted transition-colors hover:bg-surface-sunken hover:text-ink sm:inline-flex"
           >
-            Account
+            <AccountIcon />
           </Link>
           <CartDrawer />
         </div>
       </div>
 
       {/* Device picker gets its own row on small screens rather than hiding */}
-      <div className="border-t border-line px-4 py-2 md:hidden">
+      <div className="flex items-center gap-2 border-t border-line px-4 py-2 md:hidden">
         <DevicePicker groups={groups} />
+        <Link
+          href="/account"
+          aria-label="Account"
+          className="ml-auto inline-flex size-10 items-center justify-center rounded-full text-ink-muted transition-colors hover:bg-surface-sunken hover:text-ink"
+        >
+          <AccountIcon />
+        </Link>
       </div>
     </header>
+  )
+}
+
+function AccountIcon() {
+  return (
+    <svg
+      className="size-5"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      aria-hidden
+    >
+      <circle cx="12" cy="8.5" r="3.75" />
+      <path
+        strokeLinecap="round"
+        d="M4.5 20.25a7.5 7.5 0 0 1 15 0"
+      />
+    </svg>
   )
 }

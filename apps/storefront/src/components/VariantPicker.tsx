@@ -4,7 +4,7 @@ import type { ProductVariant } from "@/lib/types"
 import { useState, useTransition } from "react"
 import { addToCart } from "@/app/actions/cart"
 import { formatINR } from "@/lib/format"
-import { notifyCartUpdated } from "@/lib/use-cart"
+import { cartAdded } from "@/lib/use-cart"
 import { Button } from "./ui/Button"
 
 /** Device/option selector plus add-to-cart for the PDP. */
@@ -27,7 +27,7 @@ export function VariantPicker({
     if (!selectedId) return
     startTransition(async () => {
       await addToCart(selectedId, 1)
-      notifyCartUpdated()
+      cartAdded() // refresh the badge and slide the drawer open
       setAdded(true)
       setTimeout(() => setAdded(false), 2500)
     })

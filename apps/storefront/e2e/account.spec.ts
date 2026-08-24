@@ -91,8 +91,8 @@ test.describe("accounts", () => {
 
     await page.goto("/products/xivy-silicon-mobile-case")
     await page.getByRole("button", { name: /^add to cart$/i }).click()
-    await expect(page.getByRole("button", { name: /added to cart/i })).toBeVisible()
-
+    // the drawer opens over the page; go straight to checkout from it
+    await expect(page.getByRole("dialog")).toBeVisible()
     await page.goto("/checkout")
     await page.getByLabel("Email").fill(email)
     await page.getByLabel("Full name").fill("Order History")

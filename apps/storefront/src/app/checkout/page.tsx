@@ -1,6 +1,7 @@
 import type { Metadata } from "next"
 import Link from "next/link"
 import { redirect } from "next/navigation"
+import { CheckoutLineQuantity } from "@/components/CheckoutLineQuantity"
 import { CodPaymentForm, DeliveryForm } from "@/components/CheckoutForm"
 import { getCart } from "@/lib/cart"
 import { getCustomer } from "@/lib/auth"
@@ -91,16 +92,21 @@ export default async function CheckoutPage() {
 
         <aside className="h-fit rounded-card border border-line p-6">
           <h2 className="text-base font-medium">Order summary</h2>
-          <ul className="mt-4 space-y-3 text-sm">
+          <ul className="mt-4 space-y-4 text-sm">
             {items.map((item) => (
               <li key={item.id} className="flex justify-between gap-3">
                 <span className="min-w-0">
                   <span className="block truncate">{item.title}</span>
-                  <span className="text-ink-subtle">
-                    {item.variant?.title} × {item.quantity}
-                  </span>
+                  <span className="text-ink-subtle">{item.variant?.title}</span>
+                  <CheckoutLineQuantity
+                    lineId={item.id}
+                    quantity={item.quantity}
+                    title={item.title}
+                  />
                 </span>
-                <span>{formatINR(item.unit_price * item.quantity)}</span>
+                <span className="shrink-0">
+                  {formatINR(item.unit_price * item.quantity)}
+                </span>
               </li>
             ))}
           </ul>

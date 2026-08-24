@@ -23,10 +23,25 @@ export type ClientCart = {
 /** Fired after any cart mutation so every mounted consumer refetches. */
 export const CART_UPDATED = "xivy:cart-updated"
 
+/** Asks the drawer to open — dispatched from anywhere an item is added. */
+export const CART_OPEN = "xivy:cart-open"
+
 export const notifyCartUpdated = () => {
   if (typeof window !== "undefined") {
     window.dispatchEvent(new Event(CART_UPDATED))
   }
+}
+
+export const openCartDrawer = () => {
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new Event(CART_OPEN))
+  }
+}
+
+/** Refresh the cart and slide the drawer open — the post-add-to-cart action. */
+export const cartAdded = () => {
+  notifyCartUpdated()
+  openCartDrawer()
 }
 
 export function useCart() {

@@ -12,18 +12,13 @@ test.describe("cart drawer", () => {
     await expect(drawer.getByText(/your cart is empty/i)).toBeVisible()
   })
 
-  test("badge counts items and quantity controls work", async ({ page }) => {
+  test("quantity controls work and the badge tracks the cart", async ({
+    page,
+  }) => {
     await page.goto("/products/xivy-crystal-clear-mobile-case")
     await page.getByRole("button", { name: /^add to cart$/i }).click()
-    await expect(page.getByRole("button", { name: /added to cart/i })).toBeVisible()
 
-    // wait for the badge to reflect the new line before opening the drawer
-    const trigger = page.getByRole("button", { name: /^cart, 1 item$/i })
-    await expect(trigger).toBeVisible()
-    await trigger.click()
-
-    // Scoped to the dialog: the product title also appears in the page
-    // heading behind it.
+    // Adding opens the drawer on its own, so there is nothing to click here.
     const drawer = page.getByRole("dialog")
     await expect(drawer).toBeVisible()
     await expect(drawer.getByText(/loading/i)).toBeHidden()
@@ -37,6 +32,13 @@ test.describe("cart drawer", () => {
 
     await drawer.getByRole("button", { name: /^remove$/i }).click()
     await expect(drawer.getByText(/your cart is empty/i)).toBeVisible()
+
+    // closing returns the badge to zero
+    await page.keyboard.press("Escape")
+    await expect(page.getByRole("dialog")).toBeHidden()
+    await expect(
+      page.getByRole("button", { name: /^cart, 0 items$/i })
+    ).toBeVisible()
   })
 
   test("closes with Escape", async ({ page }) => {

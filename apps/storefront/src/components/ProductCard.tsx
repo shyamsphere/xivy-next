@@ -8,63 +8,91 @@ import {
   discountPercent,
   inStock,
 } from "@/lib/medusa"
+import { AddToCartButton } from "./AddToCartButton"
 
+/**
+ * Product card.
+ *
+ * `addVariantId` is the variant this card may add directly. Callers only pass
+ * it when the fit is unambiguous — a single-variant product, or a
+ * device-filtered listing where the shopper's phone is already known.
+ * Otherwise the card sends them to the product page to choose, because every
+ * variant here is a different phone fit and guessing would ship the wrong
+ * case.
+ */
 export function ProductCard({
   product,
   priority = false,
+  addVariantId,
 }: {
   product: Product
   priority?: boolean
+  addVariantId?: string | null
 }) {
   const price = productPrice(product)
   const mrp = productMrp(product)
   const images = product.images ?? []
   const hoverImage = images[1]?.url
   const available = inStock(product)
+  const variants = product.variants ?? []
+
+  // A one-variant product has no ambiguity, so it can always add directly.
+  const directVariantId =
+    addVariantId ?? (variants.length === 1 ? variants[0].id : null)
+
+  const variantInStock = directVariantId
+    ? (variants.find((v) => v.id === directVariantId)?.inventory_quantity ??
+        0) > 0
+    : available
 
   return (
-    <Link
-      href={`/products/${product.handle}`}
-      className="group block overflow-hidden rounded-card border border-line bg-surface shadow-card transition-shadow hover:shadow-lift"
-    >
-      <div className="relative aspect-4/5 overflow-hidden bg-surface-sunken">
-        {product.thumbnail && (
-          <Image
-            src={product.thumbnail}
-            alt={product.title}
-            fill
-            priority={priority}
-            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-            className="object-cover transition-all duration-500 group-hover:scale-[1.04] group-hover:opacity-0"
-          />
-        )}
-        {hoverImage && (
-          <Image
-            src={hoverImage}
-            alt=""
-            fill
-            sizes="(max-width: 640px) 50vw, 25vw"
-            className="object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
-          />
-        )}
+    <div className="group relative flex flex-col overflow-hidden rounded-card border border-line bg-surface shadow-card transition-shadow hover:shadow-lift">
+      <Link
+        href={`/products/${product.handle}`}
+        className="block focus-visible:outline-offset-[-2px]"
+      >
+        <div className="relative aspect-4/5 overflow-hidden bg-surface-sunken">
+          {product.thumbnail && (
+            <Image
+              src={product.thumbnail}
+              alt={product.title}
+              fill
+              priority={priority}
+              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+              className="object-cover transition-all duration-500 group-hover:scale-[1.04] group-hover:opacity-0"
+            />
+          )}
+          {hoverImage && (
+            <Image
+              src={hoverImage}
+              alt=""
+              fill
+              sizes="(max-width: 640px) 50vw, 25vw"
+              className="object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+            />
+          )}
 
-        {price !== null && mrp !== null && mrp > price && (
-          <span className="absolute top-3 left-3 rounded-full bg-sale px-2.5 py-1 text-[11px] font-medium text-white">
-            {discountPercent(price, mrp)}% off
-          </span>
-        )}
-        {!available && (
-          <span className="absolute inset-x-3 bottom-3 rounded-full bg-ink/85 py-1.5 text-center text-[11px] font-medium text-white">
-            Out of stock
-          </span>
-        )}
-      </div>
+          {price !== null && mrp !== null && mrp > price && (
+            <span className="absolute top-3 left-3 rounded-full bg-sale px-2.5 py-1 text-[11px] font-medium text-white">
+              {discountPercent(price, mrp)}% off
+            </span>
+          )}
+          {!available && (
+            <span className="absolute inset-x-3 bottom-3 rounded-full bg-ink/85 py-1.5 text-center text-[11px] font-medium text-white">
+              Out of stock
+            </span>
+          )}
+        </div>
 
-      <div className="p-4">
-        <h3 className="truncate text-sm font-medium text-ink">
-          {product.title}
-        </h3>
-        <div className="mt-1.5 flex items-baseline gap-2">
+        <div className="px-4 pt-4">
+          <h3 className="truncate text-sm font-medium text-ink">
+            {product.title}
+          </h3>
+        </div>
+      </Link>
+
+      <div className="mt-1.5 flex items-center justify-between gap-2 px-4 pb-4">
+        <div className="flex items-baseline gap-2">
           {price !== null && (
             <span className="text-base font-semibold">{formatINR(price)}</span>
           )}
@@ -74,7 +102,21 @@ export function ProductCard({
             </span>
           )}
         </div>
+
+        {directVariantId ? (
+          <AddToCartButton
+            variantId={directVariantId}
+            disabled={!variantInStock}
+          />
+        ) : (
+          <Link
+            href={`/products/${product.handle}`}
+            className="h-9 shrink-0 rounded-full border border-line-strong px-3.5 text-xs leading-9 font-medium text-ink-muted transition-colors hover:border-ink hover:text-ink"
+          >
+            Choose phone
+          </Link>
+        )}
       </div>
-    </Link>
+    </div>
   )
 }

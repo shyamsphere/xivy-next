@@ -19,9 +19,19 @@ import {
 
 export type ActionState = { error?: string; ok?: boolean } | undefined
 
+/**
+ * Cart totals appear on both /cart and the checkout summary, so every
+ * mutation has to invalidate both — otherwise the checkout page can render a
+ * stale quantity while the cart shows the new one.
+ */
+function revalidateCartViews() {
+  revalidatePath("/cart")
+  revalidatePath("/checkout")
+}
+
 export async function addToCart(variantId: string, quantity = 1) {
   await addLineItem(variantId, quantity)
-  revalidatePath("/cart")
+  revalidateCartViews()
 }
 
 export async function setLineQuantity(lineId: string, quantity: number) {
@@ -30,12 +40,12 @@ export async function setLineQuantity(lineId: string, quantity: number) {
   } else {
     await updateLineItem(lineId, quantity)
   }
-  revalidatePath("/cart")
+  revalidateCartViews()
 }
 
 export async function removeLine(lineId: string) {
   await removeLineItem(lineId)
-  revalidatePath("/cart")
+  revalidateCartViews()
 }
 
 // Indian address shape — the same rules the previous storefront enforced.

@@ -3,15 +3,22 @@
 import * as Dialog from "@radix-ui/react-dialog"
 import Image from "next/image"
 import Link from "next/link"
-import { useState, useTransition } from "react"
+import { useEffect, useState, useTransition } from "react"
 import { removeLine, setLineQuantity } from "@/app/actions/cart"
 import { formatINR } from "@/lib/format"
-import { notifyCartUpdated, useCart } from "@/lib/use-cart"
+import { CART_OPEN, notifyCartUpdated, useCart } from "@/lib/use-cart"
 
 export function CartDrawer() {
   const [open, setOpen] = useState(false)
   const { cart, loading } = useCart()
   const [pending, startTransition] = useTransition()
+
+  // Adding an item anywhere on the site slides the drawer open.
+  useEffect(() => {
+    const show = () => setOpen(true)
+    window.addEventListener(CART_OPEN, show)
+    return () => window.removeEventListener(CART_OPEN, show)
+  }, [])
 
   const count = cart?.count ?? 0
 
@@ -43,8 +50,8 @@ export function CartDrawer() {
       </Dialog.Trigger>
 
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 z-50 bg-ink/20 backdrop-blur-[2px]" />
-        <Dialog.Content className="fixed top-0 right-0 z-50 flex h-dvh w-full max-w-md flex-col border-l border-line bg-surface shadow-lift">
+        <Dialog.Overlay className="fixed inset-0 z-50 bg-ink/20 backdrop-blur-[2px] data-[state=closed]:animate-overlay-out data-[state=open]:animate-overlay-in" />
+        <Dialog.Content className="fixed top-0 right-0 z-50 flex h-dvh w-full max-w-md flex-col border-l border-line bg-surface shadow-lift data-[state=closed]:animate-drawer-out data-[state=open]:animate-drawer-in">
           <div className="flex items-center justify-between border-b border-line px-6 py-4">
             <Dialog.Title className="text-base font-medium">
               Your cart{count > 0 ? ` (${count})` : ""}

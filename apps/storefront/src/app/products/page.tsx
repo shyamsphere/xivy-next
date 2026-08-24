@@ -74,6 +74,25 @@ export default async function ProductsPage({
 
   const sorted = sortProducts(products, params.sort)
 
+  // On a device-filtered listing the shopper's phone is known, so cards can
+  // add the matching variant directly. Variant titles are the device option
+  // values, so this is an exact match against the model name rather than a
+  // guess; anything that doesn't match falls back to "Choose phone".
+  const activeModelName = params.device
+    ? groups
+        .flatMap(({ models }) => models)
+        .find((model) => model.handle === params.device)?.name ?? null
+    : null
+
+  const variantForDevice = (product: Product): string | null => {
+    if (!activeModelName) return null
+    return (
+      product.variants?.find(
+        (variant) => variant.title?.trim() === activeModelName
+      )?.id ?? null
+    )
+  }
+
   return (
     <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6">
       <nav aria-label="Breadcrumb" className="mb-4 text-sm text-ink-subtle">
@@ -117,6 +136,7 @@ export default async function ProductsPage({
               key={product.id}
               product={product}
               priority={index < 4}
+              addVariantId={variantForDevice(product)}
             />
           ))}
         </div>

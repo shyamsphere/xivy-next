@@ -21,7 +21,12 @@ export function SearchField({ className = "" }: { className?: string }) {
       <label className="sr-only" htmlFor="site-search">
         Search products
       </label>
-      <div className="flex h-10 items-center gap-2 rounded-full border border-line-strong px-3 focus-within:border-ink">
+      {/*
+        The focus ring belongs on this rounded wrapper, not the bare input:
+        an outline on the input paints a rectangle inside the pill. Matches
+        the border + accent outline that the form fields elsewhere use.
+      */}
+      <div className="flex h-10 items-center gap-2 rounded-full border border-line-strong px-3 transition-colors focus-within:border-ink focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-accent">
         <SearchIcon />
         <input
           id="site-search"
@@ -29,7 +34,7 @@ export function SearchField({ className = "" }: { className?: string }) {
           value={value}
           onChange={(event) => setValue(event.target.value)}
           placeholder="Search covers"
-          className="w-32 bg-transparent text-sm outline-none placeholder:text-ink-subtle lg:w-44"
+          className="w-32 bg-transparent text-sm outline-none placeholder:text-ink-subtle focus:outline-none focus-visible:outline-none lg:w-44"
         />
       </div>
     </form>
