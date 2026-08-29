@@ -46,6 +46,24 @@ const DEVICE_SKU_SUFFIX: Record<string, string> = {
   "Galaxy S24": "S24",
 }
 
+/**
+ * Product catalogue.
+ *
+ * `images` is the gallery, in order: the first entry is the hero shown on
+ * cards and as the thumbnail, the rest fill the product-page gallery and the
+ * card swiper. Controls (thumbnails, arrows, counter, dots) appear on their
+ * own as soon as there is more than one image, so adding a photo is the only
+ * step. Files live in `static/` and are served from `${BACKEND_URL}/static/`.
+ *
+ * Example of a full gallery:
+ *
+ *   images: [
+ *     "silicon.jpg",              // hero — card, thumbnail, first in gallery
+ *     "silicon-back.jpg",
+ *     "silicon-detail.jpg",
+ *     "silicon-in-hand.jpg",
+ *   ],
+ */
 const XIVY_PRODUCTS = [
   {
     title: "XIVY Silicon Mobile Case",
