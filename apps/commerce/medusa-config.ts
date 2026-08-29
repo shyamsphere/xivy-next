@@ -24,7 +24,16 @@ module.exports = defineConfig({
   },
   admin: {
     disable: process.env.DISABLE_MEDUSA_ADMIN === "true",
-    backendUrl: process.env.MEDUSA_BACKEND_URL || "http://localhost:9000",
+    /**
+     * backendUrl is deliberately not set. The dashboard is compiled at build
+     * time, so any value here is frozen into the JS bundle — in a container
+     * build that is whatever the environment held during `docker build`
+     * (nothing), which shipped a dashboard calling http://localhost:9000 and
+     * failing with "Failed to fetch" on login. Left unset, Medusa uses the
+     * browser origin, which is correct because this same app serves /app.
+     * Only set it if the dashboard is ever hosted on a separate domain, and
+     * then pass it as a build argument, not a runtime variable.
+     */
   },
   modules: [
     // ─── Xivy custom modules ────────────────────────────────────────────
