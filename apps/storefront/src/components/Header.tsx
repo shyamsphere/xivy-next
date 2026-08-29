@@ -1,3 +1,4 @@
+import Image from "next/image"
 import Link from "next/link"
 import { listBrandsWithModels } from "@/lib/devices"
 import { CartDrawer } from "./CartDrawer"
@@ -16,12 +17,17 @@ export async function Header() {
   return (
     <header className="sticky top-0 z-40 border-b border-line bg-surface/85 backdrop-blur">
       <div className="mx-auto flex h-16 max-w-7xl items-center gap-4 px-4 sm:px-6">
-        <Link
-          href="/"
-          className="text-xl font-semibold tracking-tight"
-          aria-label="XIVY home"
-        >
-          XIVY
+        <Link href="/" aria-label="XIVY home" className="shrink-0">
+          {/* Trimmed to the mark's bounds with the background keyed out, so
+              it sits flush against the header rather than in a grey box. */}
+          <Image
+            src="/logo.png"
+            alt="XIVY"
+            width={254}
+            height={84}
+            priority
+            className="h-6 w-auto sm:h-7"
+          />
         </Link>
 
         <nav className="hidden items-center gap-1 text-sm md:flex">
