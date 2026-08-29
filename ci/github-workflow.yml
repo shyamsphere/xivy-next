@@ -1,0 +1,153 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: xivy
+          POSTGRES_PASSWORD: xivy
+          POSTGRES_DB: xivy_commerce
+        ports:
+          - "5433:5432"
+        options: >-
+          --health-cmd "pg_isready -U xivy"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+      redis:
+        image: redis:7-alpine
+        ports:
+          - "6380:6379"
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Unit tests
+        working-directory: apps/commerce
+        run: pnpm run test:unit
+
+      - name: Module integration tests
+        working-directory: apps/commerce
+        run: pnpm run test:integration:modules
+        env:
+          DB_HOST: localhost
+          DB_PORT: "5433"
+          DB_USERNAME: xivy
+          DB_PASSWORD: xivy
+
+      # The storefront build must succeed with no backend reachable, which is
+      # also what a cold CI environment looks like.
+      - name: Build storefront
+        working-directory: apps/storefront
+        run: pnpm build
+        env:
+          MEDUSA_BACKEND_URL: http://localhost:9000
+          MEDUSA_PUBLISHABLE_KEY: pk_build_placeholder
+          NEXT_PUBLIC_BASE_URL: http://localhost:3000
+
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: xivy
+          POSTGRES_PASSWORD: xivy
+          POSTGRES_DB: xivy_commerce
+        ports:
+          - "5433:5432"
+        options: >-
+          --health-cmd "pg_isready -U xivy"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+      redis:
+        image: redis:7-alpine
+        ports:
+          - "6380:6379"
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Prepare commerce env
+        working-directory: apps/commerce
+        run: cp .env.template .env
+
+      - name: Migrate and seed
+        working-directory: apps/commerce
+        run: |
+          pnpm exec medusa db:migrate
+          pnpm exec medusa exec ./src/scripts/seed-devices.ts
+          pnpm exec medusa exec ./src/scripts/seed.ts | tee /tmp/seed.log
+          grep -o 'pk_[a-z0-9]*' /tmp/seed.log | tail -1 > /tmp/pk.txt
+
+      - name: Start commerce backend
+        working-directory: apps/commerce
+        run: |
+          nohup pnpm exec medusa develop > /tmp/medusa.log 2>&1 &
+          for i in $(seq 1 40); do
+            curl -sf http://localhost:9000/health && break
+            sleep 5
+          done
+          curl -sf http://localhost:9000/health || (tail -50 /tmp/medusa.log && exit 1)
+
+      - name: Install Playwright browser
+        working-directory: apps/storefront
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Run E2E suite
+        working-directory: apps/storefront
+        env:
+          MEDUSA_BACKEND_URL: http://localhost:9000
+          NEXT_PUBLIC_BASE_URL: http://localhost:3000
+          E2E_START_SERVER: "1"
+        run: |
+          export MEDUSA_PUBLISHABLE_KEY=$(cat /tmp/pk.txt)
+          pnpm exec playwright test
+
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report
+          path: apps/storefront/playwright-report/
+          retention-days: 7
