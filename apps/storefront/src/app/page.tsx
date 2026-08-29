@@ -87,15 +87,21 @@ export default async function HomePage() {
 }
 
 /**
- * Products are fetched with a fallback because this page is prerendered at
- * build time, and CI builds run without a backend. In production the build
- * can reach the backend, so real data is baked in.
+ * This page is prerendered, so a failed fetch would otherwise be baked into
+ * the static output and served until the next revalidation — a brief backend
+ * restart during a deploy is enough to publish an empty shop.
+ *
+ * So: tolerate failure only when there is no backend configured at all (a CI
+ * build), and otherwise let the error surface, which fails the deploy rather
+ * than shipping an empty page. Whatever is already live keeps serving.
  */
 async function safeProducts(limit: number) {
   try {
     const { products } = await listProducts({ limit })
     return products
-  } catch {
+  } catch (error) {
+    const configured = !!process.env.MEDUSA_PUBLISHABLE_KEY?.startsWith("pk_")
+    if (configured) throw error
     return []
   }
 }

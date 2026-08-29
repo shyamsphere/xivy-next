@@ -9,8 +9,6 @@ build/
 .turbo/
 
 # env
-.env
-.env.local
 .env.*.local
 
 # misc
@@ -24,3 +22,4 @@ artifacts/
 # tests
 test-results/
 playwright-report/
+config.bat
