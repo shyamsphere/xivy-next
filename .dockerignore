@@ -1,0 +1,13 @@
+node_modules
+**/node_modules
+.next
+**/.next
+.medusa
+**/.medusa
+.turbo
+**/.turbo
+.git
+artifacts
+test-results
+playwright-report
+**/*.log

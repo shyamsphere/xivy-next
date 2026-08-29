@@ -2,9 +2,26 @@ import type { NextConfig } from "next"
 
 const nextConfig: NextConfig = {
   images: {
+    /**
+     * Product images are served by the commerce backend from /static (and
+     * later from the CDN), so every host the backend can run on has to be
+     * allowed here — next/image blocks anything unlisted, which would break
+     * every product image the moment the backend stops being localhost.
+     */
     remotePatterns: [
       { protocol: "http", hostname: "localhost", port: "9000" },
       { protocol: "https", hostname: "cdn.xivy.in" },
+      // Railway-hosted backend (any project/environment subdomain)
+      { protocol: "https", hostname: "*.up.railway.app" },
+      // Whatever MEDUSA_BACKEND_URL points at, so a custom domain just works
+      ...(process.env.MEDUSA_BACKEND_URL?.startsWith("https://")
+        ? [
+            {
+              protocol: "https" as const,
+              hostname: new URL(process.env.MEDUSA_BACKEND_URL).hostname,
+            },
+          ]
+        : []),
     ],
   },
 
