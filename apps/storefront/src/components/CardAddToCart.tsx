@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { useEffect, useState, useTransition } from "react"
 import { addToCart } from "@/app/actions/cart"
-import { readDeviceCookie } from "@/lib/device-cookie"
+import { readDeviceCookie, variantMatchesDevice } from "@/lib/device-cookie"
 import { cartAdded } from "@/lib/use-cart"
 import type { ProductVariant } from "@/lib/types"
 
@@ -27,17 +27,26 @@ export function CardAddToCart({
   /** Resolved server-side when the listing is already filtered by device. */
   serverVariantId?: string | null
 }) {
-  const [deviceLabel, setDeviceLabel] = useState<string | null>(null)
+  const [device, setDevice] = useState<{
+    handle: string
+    label: string | null
+  } | null>(null)
   const [pending, startTransition] = useTransition()
 
   useEffect(() => {
-    setDeviceLabel(readDeviceCookie()?.label ?? null)
+    setDevice(readDeviceCookie())
   }, [])
 
-  // Variant titles are the device option values, so this is an exact match
-  // on the remembered model name rather than a guess.
-  const fromCookie = deviceLabel
-    ? variants.find((variant) => variant.title?.trim() === deviceLabel)
+  // Prefer the stored model name (an exact match on the option value), then
+  // fall back to matching the handle. The fallback matters for cookies
+  // written before the name was stored, which would otherwise leave the card
+  // stuck on "Choose phone" until the shopper picked their phone again.
+  const fromCookie = device
+    ? variants.find(
+        (variant) =>
+          (device.label && variant.title?.trim() === device.label) ||
+          variantMatchesDevice(variant.title, device.handle)
+      )
     : undefined
 
   const resolved =

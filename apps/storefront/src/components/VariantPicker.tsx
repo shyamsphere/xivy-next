@@ -1,10 +1,11 @@
 "use client"
 
 import type { ProductVariant } from "@/lib/types"
-import { useState, useTransition } from "react"
+import { useEffect, useState, useTransition } from "react"
 import { addToCart } from "@/app/actions/cart"
 import { formatINR } from "@/lib/format"
 import { cartAdded } from "@/lib/use-cart"
+import { readDeviceCookie, variantMatchesDevice } from "@/lib/device-cookie"
 import { Button } from "./ui/Button"
 
 /** Device/option selector plus add-to-cart for the PDP. */
@@ -16,6 +17,21 @@ export function VariantPicker({
   optionTitle?: string
 }) {
   const [selectedId, setSelectedId] = useState(variants[0]?.id ?? null)
+
+  // Preselect the remembered phone. Without this the picker defaulted to the
+  // first variant, so a shopper who had chosen an iPhone could land on a page
+  // pre-set to a Galaxy and add the wrong fit. Read after mount so the page
+  // itself stays cacheable.
+  useEffect(() => {
+    const device = readDeviceCookie()
+    if (!device) return
+    const match = variants.find(
+      (variant) =>
+        (device.label && variant.title?.trim() === device.label) ||
+        variantMatchesDevice(variant.title, device.handle)
+    )
+    if (match) setSelectedId(match.id)
+  }, [variants])
   const [added, setAdded] = useState(false)
   const [pending, startTransition] = useTransition()
   const selected = variants.find((variant) => variant.id === selectedId)

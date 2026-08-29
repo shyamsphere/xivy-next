@@ -1,6 +1,7 @@
 import type { Metadata } from "next"
 import { notFound } from "next/navigation"
 import { ButtonLink } from "@/components/ui/Button"
+import { CartRefresher } from "@/components/CartRefresher"
 import { getOrder } from "@/lib/auth"
 import { formatINR } from "@/lib/format"
 
@@ -24,6 +25,7 @@ export default async function OrderConfirmedPage({
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-16 sm:px-6">
+      <CartRefresher />
       <div className="text-center">
         <div className="mx-auto grid size-12 place-items-center rounded-full bg-ink text-white">
           ✓

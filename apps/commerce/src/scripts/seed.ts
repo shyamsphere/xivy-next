@@ -52,7 +52,7 @@ const XIVY_PRODUCTS = [
     handle: "xivy-silicon-mobile-case",
     description:
       "Soft-touch liquid silicone case with a plush microfibre lining. Slim, grippy and shock-absorbent — everyday protection that feels premium.",
-    image: "silicon.jpg",
+    images: ["silicon.jpg"],
     price: 349,
     mrp: 599,
     skuCode: "SIL",
@@ -62,7 +62,7 @@ const XIVY_PRODUCTS = [
     handle: "xivy-rugged-armor-case",
     description:
       "Dual-layer rugged protection with reinforced corners and a raised bezel. Military-grade drop resistance without the bulk.",
-    image: "rugged.jpeg",
+    images: ["rugged.jpeg"],
     price: 399,
     mrp: 699,
     skuCode: "RUG",
@@ -72,7 +72,7 @@ const XIVY_PRODUCTS = [
     handle: "xivy-transparent-mobile-case",
     description:
       "Crystal-clear TPU case that shows off your phone, not the case. Yellowing-resistant with precise cutouts and a slim profile.",
-    image: "transparent.jpg",
+    images: ["transparent.jpg"],
     price: 249,
     mrp: 399,
     skuCode: "TRA",
@@ -82,7 +82,7 @@ const XIVY_PRODUCTS = [
     handle: "xivy-crystal-clear-mobile-case",
     description:
       "Hybrid hard-back clear case with flexible bumpers. High transparency, scratch resistance and clean edge protection.",
-    image: "crystal.webp",
+    images: ["crystal.webp"],
     price: 299,
     mrp: 499,
     skuCode: "CRY",
@@ -357,7 +357,11 @@ export default async function seedXivyData({ container }: ExecArgs) {
           status: ProductStatus.PUBLISHED,
           shipping_profile_id: shippingProfile!.id,
           metadata: { mrp: product.mrp },
-          images: [{ url: `${BACKEND_URL}/static/${product.image}` }],
+          // list every shot here; the storefront gallery and card
+          // swiper pick up additional images automatically
+          images: product.images.map((file) => ({
+            url: `${BACKEND_URL}/static/${file}`,
+          })),
           options: [DEVICE_OPTION],
           variants: DEVICE_OPTION.values.map((device) => ({
             title: device,

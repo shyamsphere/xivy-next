@@ -9,6 +9,7 @@ import {
   inStock,
 } from "@/lib/medusa"
 import { CardAddToCart } from "./CardAddToCart"
+import { CardImages } from "./CardImages"
 
 /**
  * Product card.
@@ -32,7 +33,6 @@ export function ProductCard({
   const price = productPrice(product)
   const mrp = productMrp(product)
   const images = product.images ?? []
-  const hoverImage = images[1]?.url
   const available = inStock(product)
   const variants = product.variants ?? []
 
@@ -42,26 +42,12 @@ export function ProductCard({
         href={`/products/${product.handle}`}
         className="block focus-visible:outline-offset-[-2px]"
       >
-        <div className="relative aspect-4/5 overflow-hidden bg-surface-sunken">
-          {product.thumbnail && (
-            <Image
-              src={product.thumbnail}
-              alt={product.title}
-              fill
-              priority={priority}
-              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-              className="object-cover transition-all duration-500 group-hover:scale-[1.04] group-hover:opacity-0"
-            />
-          )}
-          {hoverImage && (
-            <Image
-              src={hoverImage}
-              alt=""
-              fill
-              sizes="(max-width: 640px) 50vw, 25vw"
-              className="object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
-            />
-          )}
+        <div className="relative">
+          <CardImages
+            images={images.length ? images : product.thumbnail ? [{ url: product.thumbnail }] : []}
+            alt={product.title}
+            priority={priority}
+          />
 
           {price !== null && mrp !== null && mrp > price && (
             <span className="absolute top-3 left-3 rounded-full bg-sale px-2.5 py-1 text-[11px] font-medium text-white">

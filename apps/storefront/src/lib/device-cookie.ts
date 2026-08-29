@@ -52,3 +52,31 @@ export const readDeviceCookie = (): SelectedDevice | null => {
   )
   return decodeDevice(match?.[1])
 }
+
+/** "iPhone 16 Pro" -> "iphone-16-pro"; "+" is kept as "plus" so the Plus and
+ *  base models of a line-up never collapse onto the same slug. */
+export const deviceSlug = (value: string): string =>
+  value
+    .toLowerCase()
+    .trim()
+    .replace(/\+/g, " plus ")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "")
+
+/**
+ * Does this variant title correspond to the chosen device handle?
+ *
+ * Handles carry a brand prefix ("apple-iphone-16-pro") that variant titles
+ * ("iPhone 16 Pro") lack, so the comparison is suffix-based. Working from the
+ * handle means a cookie written before the model name was stored — or by an
+ * older build — still resolves.
+ */
+export const variantMatchesDevice = (
+  variantTitle: string | null | undefined,
+  deviceHandle: string | null | undefined
+): boolean => {
+  if (!variantTitle || !deviceHandle) return false
+  const slug = deviceSlug(variantTitle)
+  if (!slug) return false
+  return deviceHandle === slug || deviceHandle.endsWith(`-${slug}`)
+}
